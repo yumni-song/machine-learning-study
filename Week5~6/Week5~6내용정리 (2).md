@@ -1,69 +1,56 @@
-# 📘 모델 훈련: 다항 회귀와 규제, 그리고 분류
+# 📘 모델 훈련: 다항 회귀, 규제 및 분류
 
 ## 4.3 & 4.4 다항 회귀와 학습 곡선
 데이터가 단순한 직선 형태가 아닐 때, 특성의 거듭제곱을 새로운 특성으로 추가하여 선형 모델을 훈련시키는 방법입니다.
 
-* **PolynomialFeatures**: 사이킷런을 통해 주어진 특성의 차수를 높여 데이터를 변환합니다.
-* **과대적합 vs 과소적합**:
-    * **고차 다항 회귀(예: 300차)**: 훈련 데이터에 너무 민감하게 반응하여 **과대적합**되기 쉽습니다.
-    * **단순 선형 모델**: 데이터의 곡선 구조를 반영하지 못해 **과소적합**됩니다.
-* **학습 곡선 (Learning Curve)**: 훈련 세트 크기에 따른 훈련/검증 오차를 그래프로 나타낸 것입니다.
-    * **과소적합**: 두 곡선이 높은 오차에서 평행하게 근접합니다.
-    * **과대적합**: 두 곡선 사이에 큰 간격이 존재하며, 훈련 오차가 검증 오차보다 훨씬 낮습니다.
-
-
+* **PolynomialFeatures**: 사이킷런을 통해 차수를 높여 데이터를 변환합니다.
+* **학습 곡선 (Learning Curve)**: 훈련 세트 크기에 따른 오차를 그래프로 나타내어 과대/과소적합을 판별합니다.
+    * **과대적합(Overfitting)**: 훈련 오차는 낮으나 검증 오차가 높음. 두 곡선 사이의 간격(Gap)이 큼.
+    * **과소적합(Underfitting)**: 두 곡선이 모두 높은 오차에서 수렴함.
 
 ---
 
-## ⚖️ 편향/분산 트레이드오프 (Bias/Variance Trade-off)
-모델의 일반화 오차는 세 가지 다른 오차의 합으로 구성됩니다.
-
-1. **편향 (Bias)**: 잘못된 가심(예: 2차 데이터를 1차로 가정)으로 인한 오차. **과소적합**을 유발합니다.
-2. **분산 (Variance)**: 데이터의 작은 변동에 모델이 과도하게 민감한 정도. **과대적합**을 유발합니다.
-3. **줄일 수 없는 오차**: 데이터 자체의 잡음(Noise)으로 인해 발생하며, 데이터 정제로만 해결 가능합니다.
-
----
-
-## 4.5 규제가 있는 선형 모델
-모델의 과대적합을 방지하기 위해 가중치의 크기를 제한하는 방법입니다.
+## 4.5 규제가 있는 선형 모델 (Regularization)
+모델의 파라미터 가중치를 제한하여 과대적합을 방지하는 방법입니다.
 
 ### 4.5.1 릿지 회귀 (Ridge Regression)
-* 비용 함수에 가중치의 제곱($l_2$ 노름)에 비례하는 항을 추가합니다.
-* 모델의 가중치를 가능한 한 작게 유지하려 노력합니다.
+비용 함수에 가중치의 제곱($l_2$ 노름)에 비례하는 항을 추가합니다.
+* **비용 함수**: $J(\boldsymbol{\theta}) = \text{MSE}(\boldsymbol{\theta}) + \frac{\alpha}{m} \sum_{i=1}^{n} \theta_i^2$
+* **정규 방정식**: $\hat{\boldsymbol{\theta}} = (\mathbf{X}^T \mathbf{X} + \alpha \mathbf{A})^{-1} \mathbf{X}^T \mathbf{y}$
 
 ### 4.5.2 라쏘 회귀 (Lasso Regression)
-* 비용 함수에 가중치의 절댓값($l_1$ 노름)에 비례하는 항을 추가합니다.
-* **특징**: 덜 중요한 특성의 가중치를 0으로 만들어 자동으로 **특성 선택**을 수행합니다.
+비용 함수에 가중치의 절댓값($l_1$ 노름)에 비례하는 항을 추가하여 불필요한 특성을 제거합니다.
+* **비용 함수**: $J(\boldsymbol{\theta}) = \text{MSE}(\boldsymbol{\theta}) + 2\alpha \sum_{i=1}^{n} |\theta_i|$
+* **서브그레이디언트 벡터**: $g(\boldsymbol{\theta}, J) = \nabla_{\boldsymbol{\theta}} \text{MSE}(\boldsymbol{\theta}) + \alpha \begin{pmatrix} \text{sign}(\theta_1) \\ \vdots \\ \text{sign}(\theta_n) \end{pmatrix}$
 
 ### 4.5.3 엘라스틱넷 (Elastic Net)
-* 릿지와 라쏘를 절충한 모델입니다. 혼합 비율 $r$을 사용하여 규제 정도를 조절합니다.
-
-### 4.5.4 조기 종료 (Early Stopping)
-* 검증 오차가 최소값에 도달했을 때 훈련을 중지하는 기법입니다. "공짜 점심"이라고 불릴 만큼 매우 효과적입니다.
-
-
+릿지와 라쏘 규제를 혼합 비율 $r$로 절충한 모델입니다.
+* **비용 함수**: $J(\boldsymbol{\theta}) = \text{MSE}(\boldsymbol{\theta}) + r\left(2\alpha \sum_{i=1}^{n} |\theta_i|\right) + (1-r)\left(\frac{\alpha}{m} \sum_{i=1}^{n} \theta_i^2\right)$
 
 ---
 
 ## 4.6 로지스틱 회귀 (Logistic Regression)
-샘플이 특정 클래스에 속할 확률을 추정하는 이진 분류 알고리즘입니다.
 
-### 4.6.1 확률 추정
-* 선형 회귀처럼 가중치 합을 계산하지만, 결과를 **시그모이드(Sigmoid) 함수**에 통과시켜 0과 1 사이의 값을 출력합니다.
-* **로지스틱 함수**: $\sigma(t) = \frac{1}{1 + e^{-t}}$
+### 4.6.1 확률 추정 및 예측
+* **확률 추정**: $\hat{p} = h_{\boldsymbol{\theta}}(\mathbf{x}) = \sigma(\boldsymbol{\theta}^T \mathbf{x})$
+* **로지스틱 함수 (Sigmoid)**: $\sigma(t) = \frac{1}{1 + \exp(-t)}$
+* **예측 모델**: $\hat{y} = \begin{cases} 0 & \hat{p} < 0.5 \text{일 때} \\ 1 & \hat{p} \geq 0.5 \text{일 때} \end{cases}$
 
-### 4.6.2 훈련과 비용 함수 (로그 손실)
-* 양성 샘플에 대해 낮은 확률을 출력하거나, 음성 샘플에 대해 높은 확률을 출력하면 비용이 커지도록 설계되었습니다.
-
-### 4.6.3 결정 경계 (Decision Boundary)
-* 확률이 50%가 되는 지점을 기준으로 클래스를 분류합니다. 붓꽃 데이터셋에서 꽃잎 너비에 따라 종을 구분할 때 이 경계가 생성됩니다.
+### 4.6.2 비용 함수 (로그 손실)
+모델이 양성을 양성으로, 음성을 음성으로 잘 예측하도록 파라미터 $\boldsymbol{\theta}$를 찾습니다.
+* **단일 샘플 비용**: $c(\boldsymbol{\theta}) = \begin{cases} -\log(\hat{p}) & y=1 \text{일 때} \\ -\log(1-\hat{p}) & y=0 \text{일 때} \end{cases}$
+* **전체 비용 함수 (로그 손실)**: $J(\boldsymbol{\theta}) = -\frac{1}{m} \sum_{i=1}^{m} [y^{(i)} \log(\hat{p}^{(i)}) + (1-y^{(i)}) \log(1-\hat{p}^{(i)})]$
+* **편도함수**: $\frac{\partial}{\partial \theta_j} J(\boldsymbol{\theta}) = \frac{1}{m} \sum_{i=1}^{m} (\sigma(\boldsymbol{\theta}^T \mathbf{x}^{(i)}) - y^{(i)})x_j^{(i)}$
 
 ---
 
 ## 4.6.4 소프트맥스 회귀 (Softmax Regression)
-이진 분류를 넘어 여러 개의 클래스를 직접 지원하도록 확장된 로지스틱 회귀입니다.
+다중 클래스 분류를 직접 지원하는 로지스틱 회귀의 확장판입니다.
 
-* **작동 방식**: 샘플 $\mathbf{x}$에 대해 각 클래스 $k$의 점수 $s_k(\mathbf{x})$를 계산하고, **소프트맥스 함수**를 적용하여 모든 클래스의 확률 합이 1이 되도록 추정합니다.
-* **비용 함수**: 모델이 타깃 클래스에 대해 낮은 확률을 추정할 때 벌칙을 주는 **크로스 엔트로피(Cross Entropy)**를 사용합니다.
+* **클래스 $k$에 대한 점수**: $s_k(\mathbf{x}) = (\boldsymbol{\theta}^{(k)})^T \mathbf{x}$
+* **소프트맥스 함수**: $\hat{p}_k = \sigma(\mathbf{s}(\mathbf{x}))_k = \frac{\exp(s_k(\mathbf{x}))}{\sum_{j=1}^{K} \exp(s_j(\mathbf{x}))}$
+* **최종 예측**: $\hat{y} = \text{argmax}_k \sigma(\mathbf{s}(\mathbf{x}))_k$
+* **크로스 엔트로피 비용 함수**: $J(\mathbf{\Theta}) = -\frac{1}{m} \sum_{i=1}^{m} \sum_{k=1}^{K} y_k^{(i)} \log(\hat{p}_k^{(i)})$
+* **그레이디언트 벡터**: $\nabla_{\boldsymbol{\theta}^{(k)}} J(\mathbf{\Theta}) = \frac{1}{m} \sum_{i=1}^{m} (\hat{p}_k^{(i)} - y_k^{(i)})\mathbf{x}^{(i)}$
 
 ---
